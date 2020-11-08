@@ -68,6 +68,54 @@ public class MainFrame extends JFrame {
 // Добавить его в главное меню
         menuBar.add(tableMenu);
 
+        Action saveToTextAction = new AbstractAction("Сохранить в текстовый  файл") {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                if (fileChooser==null) {
+
+// то создать его
+                    fileChooser = new JFileChooser();
+// и инициализировать текущей директорией
+                    fileChooser.setCurrentDirectory(new File("."));
+                }
+// Показать диалоговое окно
+                if (fileChooser.showSaveDialog(MainFrame.this) ==
+                        JFileChooser.APPROVE_OPTION)
+// Если результат его показа успешный,
+// сохранить данные в текстовый файл
+                    saveToTextFile(fileChooser.getSelectedFile());
+            }
+        };
+// Добавить соответствующий пункт подменю в меню "Файл"
+        saveToTextMenuItem = fileMenu.add(saveToTextAction);
+// По умолчанию пункт меню является недоступным (данных ещѐ нет)
+        saveToTextMenuItem.setEnabled(false);
+        // Создать новое "действие" по сохранению в текстовый файл
+        Action saveToGraphicsAction = new AbstractAction("Сохранить данные для построения графика") {
+            public void actionPerformed(ActionEvent event) {
+                if (fileChooser==null) {
+// Если экземпляр диалогового окна
+// "Открыть файл" ещѐ не создан,
+// то создать его
+                    fileChooser = new JFileChooser();
+// и инициализировать текущей директорией
+                    fileChooser.setCurrentDirectory(new File("."));
+                }
+// Показать диалоговое окно
+                if (fileChooser.showSaveDialog(MainFrame.this) ==
+                        JFileChooser.APPROVE_OPTION);
+// Если результат его показа успешный,
+// сохранить данные в двоичный файл
+                saveToGraphicsFile(
+                        fileChooser.getSelectedFile());
+            }
+        };
+// Добавить соответствующий пункт подменю в меню "Файл"
+        saveToGraphicsMenuItem = fileMenu.add(saveToGraphicsAction);
+// По умолчанию пункт меню является недоступным(данных ещѐ нет)
+        saveToGraphicsMenuItem.setEnabled(false);
+// Создать новое действие по поиску значений многочлена
+
 
 
         Action searchValueAction = new AbstractAction("Найти значение многочлена") {
@@ -232,15 +280,80 @@ public class MainFrame extends JFrame {
         getContentPane().add(hBoxResult, BorderLayout.CENTER);
     }
 
+    protected void saveToGraphicsFile(File selectedFile) {
+        try {
+// Создать новый байтовый поток вывода, направленный в указанный файл
+            DataOutputStream out = new DataOutputStream(new
+                    FileOutputStream(selectedFile));
+// Записать в поток вывода попарно значение X в точке, значение многочлена в точке
+            for (int i = 0; i<data.getRowCount(); i++) {
+                out.writeDouble((Double)data.getValueAt(i,0));
+                out.writeDouble((Double)data.getValueAt(i,1));
+            }
+// Закрыть поток вывода
+            out.close();
+        } catch (Exception e) {
+// Исключительную ситуацию "ФайлНеНайден" в данном случае можно не обрабатывать,
+// так как мы файл создаѐм, а не открываем для чтения
+        }
+    }
+    protected void saveToTextFile(File selectedFile) {
+        try {
+// Создать новый символьный поток вывода, направленный в указанный файл
+            PrintStream out = new PrintStream(selectedFile);
+// Записать в поток вывода заголовочные сведения
+            out.println("Результаты табулирования многочлена по схеме Горнера");
+            out.print("Многочлен: ");
+            for (int i=0; i<coefficients.length; i++) {
+                out.print(coefficients[i] + "*X^" +
+                        (coefficients.length-i-1));
+                if (i!=coefficients.length-1)
+                    out.print(" + ");
+            }
+            out.println("");
+            out.println("Интервал от " + data.getFrom() + " до " +
+                    data.getTo() + " с шагом " + data.getStep());
+            out.println("====================================================");
+// Записать в поток вывода значения в точках
+            for (int i = 0; i<data.getRowCount(); i++) {
+                out.println("Значение в точке " + data.getValueAt(i,0)
+                        + " равно " + data.getValueAt(i,1));
+            }
+// Закрыть поток
+            out.close();
+        } catch (FileNotFoundException e) {
+// Исключительную ситуацию "ФайлНеНайден" можно не
+// обрабатывать, так как мы файл создаѐм, а не открываем
+        }
+    }
+    public static void main(String[] args) {
+// Если не задано ни одного аргумента командной строки -
+// Продолжать вычисления невозможно, коэффиценты неизвестны
+        if (args.length == 0) {
+            System.out.println("Невозможно табулировать многочлен, для которого не задано ни одного коэффициента!");
+            System.exit(-1);
+        }
+// Зарезервировать места в массиве коэффициентов столько, сколько аргументов командной строки
+        Double[] coefficients = new Double[args.length];
+        int i = 0;
+        try {
+// Перебрать аргументы, пытаясь преобразовать их в Double
+            for (String arg : args) {
+                coefficients[i++] = Double.parseDouble(arg);
+            }
+        } catch (NumberFormatException ex) {
+// Если преобразование невозможно - сообщить об ошибке и
+
+            System.out.println("Ошибка преобразования строки '" +
+                    args[i] + "' в число типа Double");
+            System.exit(-2);
+        }
+// Создать экземпляр главного окна, передав ему коэффициенты
+        MainFrame frame = new MainFrame(coefficients);
+// Задать действие, выполняемое при закрытии окна
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
 
 
-
-
-
-
-
-
-
-
-
+    }
 }
