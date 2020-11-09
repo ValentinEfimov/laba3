@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
     private JMenuItem saveToTextMenuItem;
     private JMenuItem saveToGraphicsMenuItem;
     private JMenuItem searchValueMenuItem;
+    private JMenuItem spravkaMenuItem;
     // Поля ввода для считывания значений переменных
     private JTextField textFieldFrom;
     private JTextField textFieldTo;
@@ -58,15 +59,23 @@ public class MainFrame extends JFrame {
         setJMenuBar(menuBar);
 // Добавить в меню пункт меню "Файл"
         JMenu fileMenu = new JMenu("Файл");
-        JMenu SpravkaMenu = new JMenu("Справка");
+
 // Добавить его в главное меню
         menuBar.add(fileMenu);
-        menuBar.add(SpravkaMenu);
+
 // Создать пункт меню "Таблица"
         JMenu tableMenu = new JMenu("Таблица");
 
 // Добавить его в главное меню
         menuBar.add(tableMenu);
+        Action openSpravka = new AbstractAction("О программе") {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+
+                JOptionPane.showMessageDialog(MainFrame.this,
+                        "Автор:\n Ефимов валентин 7-я группа ");
+            }
+        };
 
         Action saveToTextAction = new AbstractAction("Сохранить в текстовый  файл") {
             @Override
@@ -84,10 +93,10 @@ public class MainFrame extends JFrame {
 // Если результат его показа успешный,
 // сохранить данные в текстовый файл
                     saveToTextFile(fileChooser.getSelectedFile());
-            }
-        };
+            }        };
 // Добавить соответствующий пункт подменю в меню "Файл"
         saveToTextMenuItem = fileMenu.add(saveToTextAction);
+        spravkaMenuItem = fileMenu.add(openSpravka);
 // По умолчанию пункт меню является недоступным (данных ещѐ нет)
         saveToTextMenuItem.setEnabled(false);
         // Создать новое "действие" по сохранению в текстовый файл
