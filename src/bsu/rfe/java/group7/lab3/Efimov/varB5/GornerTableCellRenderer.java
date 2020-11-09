@@ -43,10 +43,21 @@ public class GornerTableCellRenderer implements TableCellRenderer {
     public Component getTableCellRendererComponent(JTable table,
                                                    Object value, boolean isSelected, boolean hasFocus, int row, int col) {
 // Преобразовать double в строку с помощью форматировщика
+        double temp = (Double)value;
+        String str = String.valueOf(temp);
+        int index = str.lastIndexOf(".");
+        String str2 = str.substring(index+1,str.length());
         String formattedDouble = formatter.format(value);
 // Установить текст надписи равным строковому представлению числа
         label.setText(formattedDouble);
-        if (col==1 && needle!=null && needle.equals(formattedDouble)) {
+        boolean valid = true;
+        System.out.println(str);
+        char[] a = str2.toCharArray();
+        for(char c:a){
+            valid = (c=='1' || c=='3' || c=='5');
+            if(!valid) break;
+        }
+        if (col==1 && /*needle!=null && *//*needle.equals(formattedDouble)*/ valid) {
 // Номер столбца = 1 (т.е. второй столбец) + иголка не null
 // (значит что-то ищем) +
 // значение иголки совпадает со значением ячейки таблицы -
