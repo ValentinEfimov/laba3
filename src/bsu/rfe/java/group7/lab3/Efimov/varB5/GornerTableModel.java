@@ -26,24 +26,54 @@ public class GornerTableModel extends AbstractTableModel{
     }
     public int getColumnCount() {
 // В данной модели два столбца
-        return 2;
+        return 3;
     }
     public int getRowCount() {
 // Вычислить количество точек между началом и концом отрезка
 // исходя из шага табулирования
         return new Double(Math.ceil((to-from)/step)).intValue()+1;
     }
+
     public Object getValueAt(int row, int col) {
 // Вычислить значение X как НАЧАЛО_ОТРЕЗКА + ШАГ*НОМЕР_СТРОКИ
-        double x = from + step*row;
-        if (col==0) {
+        double x = from + step * row;
+
+
+         Double  result;
+        switch (col) {
+            case 0: {
 // Если запрашивается значение 1-го столбца, то это X
-            return x;
-        } else {
+                return x;
+            } case 1: {
 // Если запрашивается значение 2-го столбца, то это значение
 // многочлена
-            Double result = 0.0;
-            return result;
+                result = 0.0;
+                for (int i = 0; i < coefficients.length; i++) {
+                    result += x * coefficients[i];
+
+                }
+                return result;
+// Если запрашивается значение 3-го столбца, то это значение true если целая часть многочлена-простое число
+            } default: {
+                result = 0.0;
+                for (int i = 0; i < coefficients.length; i++) {
+                    result += x * coefficients[i];
+                }
+                int num = result.intValue(), temp;
+                if(num==0) return false;
+                else{
+                Boolean isPrime = true;
+                // проверяем число на простоту
+                for (int i = 2; i <= num / 2; i++) {
+                    temp = num % i;
+                    if (temp == 0 ) {
+                        isPrime = false;
+                        break;
+                    }
+                }
+                return isPrime;
+                }
+            }
         }
     }
     public String getColumnName(int col) {
@@ -51,14 +81,21 @@ public class GornerTableModel extends AbstractTableModel{
             case 0:
 // Название 1-го столбца
                 return "Значение X";
+            case 1:
+// Название 1-го столбца
+                return "Значение многочлена";
             default:
 // Название 2-го столбца
-                return "Значение многочлена";
+                return "Значение простое?";
         }
     }
     public Class<?> getColumnClass(int col) {
-// И в 1-ом и во 2-ом столбце находятся значения типа Double
-        return Double.class;
+// И в 1-ом и во 2-ом столбце находятся значения типа Double в 3-ем Bool
+        switch (col) {
+            case 2:return Boolean.class;
+            default: return  Double.class;
+        }
+
     }
 
 }
